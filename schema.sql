@@ -1,7 +1,5 @@
--- ResearchLink Simplified Database Schema (3NF Normalized)
+-- ResearchLink Database Schema (3NF Normalized)
 -- Designed for CSE DBMS Lab Mini Project
-
-USE researchlink;
 
 -- ----------------------------------------------------
 -- TABLES (DDL)
@@ -161,7 +159,6 @@ LEFT JOIN departments d ON s.dept_id = d.id;
 DELIMITER //
 
 -- Enforce Business Constraint: A student can only have ONE assigned supervisor at any time!
--- If an update attempts to set status = 'Accepted' for a student who already has an 'Accepted' application elsewhere, throw a custom database error.
 DROP TRIGGER IF EXISTS trig_prevent_multiple_supervisors_insert //
 CREATE TRIGGER trig_prevent_multiple_supervisors_insert
 BEFORE INSERT ON applications
