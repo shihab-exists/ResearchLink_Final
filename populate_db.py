@@ -378,8 +378,18 @@ def seed_database():
     print(f"Total Messages: {Message.objects.count()}")
 
 if __name__ == '__main__':
+    # Step A: Run raw database schemas/procedures/triggers first!
     try:
         execute_schema_from_file('schema.sql')
     except Exception as e:
         print(f"Notice: Database schema execution bypassed: {e}")
-    seed_database()
+        
+    # Step B: Populate Django models dynamically only if unseeded!
+    try:
+        if Department.objects.exists():
+            print("Database already seeded. Bypassing populate_db.py.")
+        else:
+            seed_database()
+    except Exception as e:
+        print(f"Running full seed due to table check: {e}")
+        seed_database()
