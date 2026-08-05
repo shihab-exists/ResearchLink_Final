@@ -15,6 +15,53 @@ from teachers.models import Department, ResearchField, Teacher
 from students.models import Skill, Student
 from projects.models import Project, Application
 from messaging.models import Message
+from django.db import connection
+
+def execute_schema_from_file(filename):
+    print(f"Reading and executing database schema from {filename}...")
+    
+    with open(filename, 'r') as f:
+        content = f.read()
+        
+    # Remove SQL comment lines
+    lines = []
+    for line in content.split('\n'):
+        if line.strip().startswith('--') or not line.strip():
+            continue
+        lines.append(line)
+    clean_content = '\n'.join(lines)
+    
+    # Isolate procedural DELIMITER blocks
+    parts = clean_content.split('DELIMITER')
+    
+    with connection.cursor() as cursor:
+        for part in parts:
+            part = part.strip()
+            if not part:
+                continue
+                
+            if part.startswith('//'):
+                # This is a procedural block (triggers or stored procedures)
+                proc_block = part[2:].strip()
+                # Split procedural units by '//' delimiter
+                sub_parts = proc_block.split('//')
+                for sub in sub_parts:
+                    sub = sub.strip()
+                    if sub.endswith(';'):
+                        sub = sub[:-1].strip()
+                    if sub:
+                        try:
+                            cursor.execute(sub)
+                        except Exception as e:
+                            print(f"Warning during procedural SQL execution: {e}")
+            else:
+                # Standard SQL statements, split by ';'
+                sub_parts = part.split(';')
+                for sub in sub_parts:
+                    sub = sub.strip()
+                    if sub:
+                        cursor.execute(sub)
+    print("✅ Custom SQL schemas, views, triggers, and stored procedures loaded successfully!")
 
 def seed_database():
     print("Starting database seeding...")
@@ -130,13 +177,11 @@ def seed_database():
             last_name=last_name
         )
         
-        # Select department and designation
         dept = departments[i % len(departments)]
         designation = designations[i % len(designations)]
         room_no = f"Room {300 + i * 5}"
         bio = f"Experienced academic in {dept.code}. My current research focuses on practical engineering solutions and publications in international journals."
         
-        # Approve all except the last 3 (so admin can approve them in dashboard!)
         is_approved = True if i < 17 else False
         
         teacher_profile = Teacher.objects.create(
@@ -148,7 +193,6 @@ def seed_database():
             bio=bio
         )
         
-        # Associate 2 to 3 random research interests (M2M)
         assigned_fields = random.sample(fields, random.randint(2, 3))
         teacher_profile.interests.add(*assigned_fields)
         
@@ -182,7 +226,7 @@ def seed_database():
             last_name=last_name
         )
         
-        dept = departments[i % 5] # Cluster students around the first 5 departments (CSE, EEE, ME, CE, IPE) for realistic densities
+        dept = departments[i % 5]
         roll_no = f"2023-1-60-{100 + (i+1):03d}"
         cgpa = round(random.uniform(2.80, 3.98), 2)
         bio = f"Passionate student looking for research collaboration in CSE and related sectors. Seeking supervision for thesis work."
@@ -197,7 +241,6 @@ def seed_database():
             cv_url=cv_url
         )
         
-        # Associate 3 to 4 random skills (M2M)
         assigned_skills = random.sample(skills, random.randint(3, 4))
         student_profile.skills.add(*assigned_skills)
         
@@ -229,7 +272,6 @@ def seed_database():
     ]
     
     projects = []
-    # Approved teachers only can post projects
     approved_teachers = [t for t in teachers if t.is_approved]
     
     for i in range(20):
@@ -268,8 +310,6 @@ def seed_database():
         teacher = project.teacher
         message = application_messages[i % len(application_messages)]
         
-        # Avoid violating our trigger constraint: we must only have ONE Accepted application per student!
-        # Thus, let's make only 3 students "Accepted" and the rest "Pending" or "Rejected"!
         if i < 3:
             status = "Accepted"
         elif i < 15:
@@ -338,4 +378,8 @@ def seed_database():
     print(f"Total Messages: {Message.objects.count()}")
 
 if __name__ == '__main__':
+    try:
+        execute_schema_from_file('schema.sql')
+    except Exception as e:
+        print(f"Notice: Database schema execution bypassed: {e}")
     seed_database()
