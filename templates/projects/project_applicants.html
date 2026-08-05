@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Collaboration Requests - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-user-info">
+        <h1>Supervision Proposals Hub</h1>
+        <p>Review current pitches, manage past decisions, and discuss details with students.</p>
+    </div>
+</div>
+
+<!-- Pending Applications -->
+<div class="card">
+    <h3 class="card-title" style="color: #d97706;">Pending Collaboration Requests ({{ pending_applications.count }})</h3>
+    {% if pending_applications %}
+        <div class="request-grid" style="margin-top: 1rem;">
+            {% for app in pending_applications %}
+                <div class="request-card">
+                    <div class="request-meta">
+                        <div>
+                            <span class="request-sender">{{ app.student.user.first_name }} {{ app.student.user.last_name }}</span>
+                            <span style="color:#64748b; font-size:0.9rem; margin-left: 0.5rem;">
+                                (Roll: {{ app.student.roll_no }} | CGPA: <strong>{{ app.student.cgpa }}</strong>)
+                            </span>
+                        </div>
+                        <span class="badge badge-pending">Pending Review</span>
+                    </div>
+                    
+                    <p style="font-size:0.85rem; color:#475569; margin-bottom: 0.75rem;">
+                        <strong>Topic Category:</strong>
+                        {% if app.project %}
+                            <span class="badge badge-open" style="font-size:0.75rem;">{{ app.project.title }}</span>
+                        {% else %}
+                            <span class="badge badge-closed" style="font-size:0.75rem; background-color:#e2e8f0; color:#334155;">Generic Collaboration Request</span>
+                        {% endif %}
+                    </p>
+
+                    <div class="request-body">
+                        <strong>Student Cover Letter Pitch:</strong>
+                        <p style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 0.75rem; border-radius: 6px; margin-top: 0.25rem; font-size: 0.9rem;">
+                            "{{ app.message }}"
+                        </p>
+                    </div>
+
+                    <div class="request-actions">
+                        <form action="{% url 'respond_application' app.id 'Accepted' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-sm" {% if not teacher.is_approved %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>Accept Student</button>
+                        </form>
+                        
+                        <form action="{% url 'respond_application' app.id 'Rejected' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-sm">Decline Proposal</button>
+                        </form>
+                        
+                        <a href="{% url 'chat_room' app.student.user.id %}" class="btn btn-secondary btn-sm" style="margin-left: auto;">Chat Message</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #64748b; font-size: 0.95rem; text-align: center; padding: 2rem 0;">
+            No pending requests. All proposals have been reviewed!
+        </p>
+    {% endif %}
+</div>
+
+<!-- Historical Responded Applications -->
+<div class="card">
+    <h3 class="card-title">Processed Decisions History</h3>
+    {% if responded_applications %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date Processed</th>
+                        <th>Student Name</th>
+                        <th>Roll Number</th>
+                        <th>Research Subject</th>
+                        <th>Status Decision</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in responded_applications %}
+                        <tr>
+                            <td>{{ app.updated_at|date:"d M, Y" }}</td>
+                            <td><strong>{{ app.student.user.first_name }} {{ app.student.user.last_name }}</strong></td>
+                            <td>{{ app.student.roll_no }}</td>
+                            <td>
+                                {% if app.project %}
+                                    {{ app.project.title }}
+                                {% else %}
+                                    <em style="color:#64748b;">Generic Supervision Topic</em>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if app.status == 'Accepted' %}
+                                    <span class="badge badge-accepted" style="font-size:0.75rem;">Accepted</span>
+                                {% else %}
+                                    <span class="badge badge-rejected" style="font-size:0.75rem;">Declined</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'chat_room' app.student.user.id %}" class="btn btn-secondary btn-sm" style="font-size:0.8rem;">Chat</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color:#64748b; font-size:0.95rem; text-align:center; padding: 2rem 0;">
+            No historical decisions are registered on your feed yet.
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

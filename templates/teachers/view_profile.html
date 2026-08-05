@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Faculty Profile - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <a href="{% url 'browse_teachers' %}" class="btn btn-secondary btn-sm">⬅️ Back to Supervisor List</a>
+</div>
+
+<div class="profile-layout">
+    <!-- Sidebar profile details -->
+    <div class="profile-sidebar">
+        <div class="profile-avatar" style="background-color: #eff6ff; color: #2563eb; border-color: #2563eb;">🔬</div>
+        <h2 class="profile-name">Prof. {{ teacher.user.first_name }} {{ teacher.user.last_name }}</h2>
+        <div class="profile-role">{{ teacher.designation }}</div>
+        <p class="profile-dept">Department of {{ teacher.dept.name }} ({{ teacher.dept.code }})</p>
+        
+        <div style="text-align: left; background-color: #f8fafc; padding: 1.25rem; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.9rem; margin-top: 1.5rem;">
+            <p class="mb-2"><strong>Office Room:</strong> {{ teacher.room_no }}</p>
+            <p class="mb-2"><strong>Email Contact:</strong> {{ teacher.user.email }}</p>
+            <p class="mb-2"><strong>Supervision Active:</strong> <span class="badge badge-accepted" style="font-size:0.75rem;">YES</span></p>
+        </div>
+        
+        <a href="{% url 'chat_room' teacher.user.id %}" class="btn btn-secondary mt-3" style="width: 100%;">Direct Chat Message</a>
+    </div>
+
+    <!-- Main Profile Content & Application form -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <!-- Bio and interests -->
+        <div class="profile-details-card">
+            <h3 class="profile-section-title">Biography & Research Context</h3>
+            <p class="mb-4" style="color: #475569; font-size: 0.95rem;">
+                {{ teacher.bio|default:"No autobiography listed yet." }}
+            </p>
+
+            <h3 class="profile-section-title">Academic Fields of Interest</h3>
+            <div class="tag-container mb-2">
+                {% for interest in teacher.interests.all %}
+                    <span class="tag">{{ interest.name }}</span>
+                {% empty %}
+                    <em style="color:#64748b; font-size:0.9rem;">No fields specific.</em>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Active Research Opportunities posted by this supervisor -->
+        <div class="profile-details-card">
+            <h3 class="profile-section-title" style="color:#2563eb;">Open Research Project Listings</h3>
+            {% if projects %}
+                <div class="request-grid">
+                    {% for proj in projects %}
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1.25rem;">
+                            <div class="flex-row mb-2">
+                                <span style="font-weight: 700; color: #1e293b; font-size: 1rem;">{{ proj.title }}</span>
+                                <span class="badge badge-open" style="font-size:0.7rem;">{{ proj.status }}</span>
+                            </div>
+                            <p style="font-size:0.9rem; color:#475569; margin-bottom: 0.5rem;">{{ proj.description }}</p>
+                            {% if proj.requirements %}
+                                <p style="font-size:0.85rem; color:#1e293b;">
+                                    <strong>Requirements:</strong> {{ proj.requirements }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color: #64748b; font-size: 0.9rem; text-align: center; padding: 1rem 0;">
+                    No specifically advertised opportunities right now. You can still apply for standard supervision!
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Application Pitch Submission form (Only shown to Students) -->
+        {% if request.session.user_role == 'student' %}
+            <div class="profile-details-card" style="border: 2px solid #bfdbfe; background-color: #fefeff;">
+                <h3 class="profile-section-title" style="color:#2563eb;">🎯 Submit Collaboration Pitch Proposal</h3>
+                <p class="mb-3" style="font-size:0.85rem; color:#64748b;">
+                    Fill out the proposal below to request academic supervision. A transaction will register your application on the teacher's pending feed.
+                </p>
+                
+                <form method="post" action="{% url 'apply_supervision' teacher.id %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="project_id">Associated Thesis Topic Opportunity</label>
+                        <select name="project_id" id="project_id" class="form-control">
+                            <option value="">-- Generic Academic Supervision Request --</option>
+                            {% for proj in projects %}
+                                <option value="{{ proj.id }}">{{ proj.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message">My Research Pitch / Proposal Cover Letter</label>
+                        <textarea name="message" id="message" rows="5" class="form-control" required 
+                            placeholder="Explain why you wish to collaborate under this supervisor, your previous experience, project interest, and what your timeline is..."></textarea>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem; text-align: right;">
+                        <button type="submit" class="btn btn-primary">Submit Application Proposal</button>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

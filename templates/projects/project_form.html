@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Post Research Opportunity - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="align-items: flex-start; padding-top: 1rem;">
+    <div class="auth-card" style="max-width: 700px; padding: 2rem;">
+        <h2 class="auth-title">{% if form_action == 'edit' %}Edit Research Opportunity{% else %}Post Research Opportunity{% endif %}</h2>
+        <p class="auth-subtitle">Advertise active research vacancies, projects, or thesis tracks for student application.</p>
+        
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="title">Research Project / Thesis Title</label>
+                <input type="text" name="title" id="title" class="form-control" required 
+                    placeholder="e.g. Machine Learning for Early Detection of Medical Anomalies" 
+                    value="{{ project.title|default:'' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Listing Status</label>
+                <select name="status" id="status" class="form-control" required>
+                    <option value="Open" {% if project.status == 'Open' %}selected{% endif %}>Open (Accepting Applications)</option>
+                    <option value="Closed" {% if project.status == 'Closed' %}selected{% endif %}>Closed (Listing Suspended)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Detailed Description & Required Student Background</label>
+                <textarea name="description" id="description" rows="8" class="form-control" required 
+                    placeholder="Describe the research goals, expected outputs, software/equipment needed, and what background skills (e.g. Python, SQL, LaTeX) are required for this supervisor role..." 
+                    style="resize: vertical;">{{ project.description|default:'' }}</textarea>
+            </div>
+            
+            <div class="flex-row mt-4" style="border-top: 1px solid #e2e8f0; padding-top: 1.5rem;">
+                <a href="{% url 'manage_projects' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">{% if form_action == 'edit' %}Save Changes{% else %}Post Research Vacancy{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

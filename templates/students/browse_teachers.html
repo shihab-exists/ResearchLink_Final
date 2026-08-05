@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Faculty Supervisors - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="background-color: #f1f5f9;">
+    <div class="dashboard-user-info">
+        <h1>Faculty Supervisors Directory</h1>
+        <p>Explore academic supervisors, view their active opportunities, and apply for thesis collaboration.</p>
+    </div>
+</div>
+
+<!-- Search & Filtering Panel -->
+<div class="search-filter-panel">
+    <form method="get" action="{% url 'browse_teachers' %}" class="filter-form">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="search">Search Supervisor Name</label>
+            <input type="text" name="search" id="search" class="form-control" placeholder="e.g. Rahman or Tasnim" value="{{ search_query|default:'' }}">
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="dept">Department</label>
+            <select name="dept" id="dept" class="form-control">
+                <option value="">All Departments</option>
+                {% for d in departments %}
+                    <option value="{{ d.id }}" {% if d.id|stringformat:"i" == selected_dept %}selected{% endif %}>{{ d.code }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+            <label for="interest">Research Field</label>
+            <select name="interest" id="interest" class="form-control">
+                <option value="">All Fields</option>
+                {% for interest in research_fields %}
+                    <option value="{{ interest.id }}" {% if interest.id|stringformat:"i" == selected_interest %}selected{% endif %}>{{ interest.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary" style="border-radius: 6px; padding: 0.6rem 1.5rem;">Search</button>
+            <a href="{% url 'browse_teachers' %}" class="btn btn-secondary" style="border-radius: 6px; padding: 0.6rem 1.5rem; display: flex; align-items: center; text-decoration: none;">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Supervisors Result Grid -->
+<h2 class="mb-3">Available Research Supervisors ({{ teachers.count }})</h2>
+{% if teachers %}
+    <div class="grid-2">
+        {% for teacher in teachers %}
+            <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="flex-row mb-2">
+                        <span style="font-size: 1.25rem; font-weight: 700; color: #1e293b;">
+                            Prof. {{ teacher.user.first_name }} {{ teacher.user.last_name }}
+                        </span>
+                        <span class="badge badge-accepted" style="font-size: 0.7rem; background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;">
+                            {{ teacher.dept.code }}
+                        </span>
+                    </div>
+                    <p style="font-size: 0.85rem; font-weight: 600; color: #64748b; text-transform: uppercase; margin-bottom: 0.75rem;">
+                        {{ teacher.designation }} | Office: {{ teacher.room_no }}
+                    </p>
+                    <p style="font-size: 0.9rem; color: #475569; margin-bottom: 1rem;">
+                        {{ teacher.bio|default:"No description posted yet."|truncatechars:140 }}
+                    </p>
+                    
+                    <!-- Teacher Interests Tags -->
+                    <div class="mb-3">
+                        <strong style="font-size: 0.8rem; color: #334155;">Research Groups:</strong>
+                        <div class="tag-container" style="margin-top: 0.25rem;">
+                            {% for field in teacher.interests.all %}
+                                <span class="tag" style="font-size:0.75rem; padding: 0.15rem 0.5rem;">{{ field.name }}</span>
+                            {% empty %}
+                                <em style="font-size: 0.8rem; color: #64748b;">No categories selected</em>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-row mt-3" style="border-top: 1px solid #f1f5f9; padding-top: 1rem;">
+                    <a href="{% url 'chat_room' teacher.user.id %}" class="btn btn-secondary btn-sm" style="font-size:0.8rem;">Send Message</a>
+                    <a href="{% url 'view_teacher_profile' teacher.id %}" class="btn btn-primary btn-sm" style="font-size:0.8rem;">View Profile & Apply</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p style="color: #64748b; font-size: 1rem; text-align: center; padding: 3rem 0; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px;">
+        🔍 No approved supervisors found matching the selected filter criteria. Try resetting the filters.
+    </p>
+{% endif %}
+{% endblock %}

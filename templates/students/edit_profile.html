@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Student Profile - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-layout">
+    <!-- Profile Card (Sidebar) -->
+    <div class="profile-sidebar">
+        <div class="profile-avatar">🎓</div>
+        <h2 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h2>
+        <div class="profile-role">Student Researcher</div>
+        <p class="profile-dept">Department: {{ student.dept.name }}</p>
+        
+        <div style="text-align: left; background-color: #f8fafc; padding: 1rem; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.9rem;">
+            <p class="mb-2"><strong>Email:</strong> {{ user.email }}</p>
+            <p class="mb-2"><strong>Roll ID:</strong> {{ student.roll_no }}</p>
+            <p class="mb-2"><strong>CGPA:</strong> <span style="color: #2563eb; font-weight: 700;">{{ student.cgpa }}</span></p>
+            <p><strong>CV File:</strong> 
+                {% if student.cv_url %}
+                    <a href="{{ student.cv_url }}" target="_blank" style="font-weight: 600;">View CV (PDF)</a>
+                {% else %}
+                    <em style="color:#64748b;">Not Uploaded</em>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Edit Form (Main Content) -->
+    <div class="profile-details-card">
+        <h3 class="profile-section-title">✏️ Edit My Academic Profile</h3>
+        
+        <form method="post" action="{% url 'my_profile' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" name="first_name" id="first_name" class="form-control" required value="{{ user.first_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" name="last_name" id="last_name" class="form-control" required value="{{ user.last_name }}">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="roll_no">Student Roll Number</label>
+                    <input type="text" name="roll_no" id="roll_no" class="form-control" required value="{{ student.roll_no }}">
+                </div>
+                <div class="form-group">
+                    <label for="cgpa">Current CGPA</label>
+                    <input type="number" step="0.01" name="cgpa" id="cgpa" class="form-control" required value="{{ student.cgpa }}" min="0.00" max="4.00">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cv_url">CV Document Link / URL</label>
+                <input type="text" name="cv_url" id="cv_url" class="form-control" value="{{ student.cv_url|default:'' }}" placeholder="e.g. /media/cvs/my_cv.pdf or Google Drive Link">
+                <small style="color: #64748b; font-size: 0.8rem;">Provide a public sharing link or relative URL for review.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Biography / Research Motivation</label>
+                <textarea name="bio" id="bio" rows="4" class="form-control" placeholder="Explain your research background, specific thesis interests, and motivation..." style="resize:vertical;">{{ student.bio|default:'' }}</textarea>
+            </div>
+
+            <!-- Skills Multiselect / Checkboxes -->
+            <div class="form-group">
+                <label>Select My Technical Skills</label>
+                <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 1rem; max-height: 200px; overflow-y: auto;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem;">
+                        {% for skill in all_skills %}
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="skills" id="skill_{{ skill.id }}" value="{{ skill.id }}"
+                                    {% if skill in student.skills.all %}checked{% endif %}>
+                                <label for="skill_{{ skill.id }}" style="display: inline; font-size: 0.85rem; font-weight: 400; cursor: pointer; margin-bottom: 0;">
+                                    {{ skill.name }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <small style="color: #64748b; font-size: 0.8rem;">These skills will be showcased on your profile for supervisors to evaluate.</small>
+            </div>
+
+            <div class="flex-row mt-4">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+                <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

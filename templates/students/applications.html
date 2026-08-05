@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Collaboration Applications - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-user-info">
+        <h1>My Applications Tracking Hub</h1>
+        <p>Monitor status, review submitted cover pitches, and chat with supervisors who accept your applications.</p>
+    </div>
+</div>
+
+<div class="card">
+    <h3 class="card-title">Submitted Collaboration Requests ({{ applications.count }})</h3>
+    {% if applications %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date Sent</th>
+                        <th>Supervisor / Department</th>
+                        <th>Associated Topic Listing</th>
+                        <th>My Cover Letter Pitch</th>
+                        <th>Status</th>
+                        <th>Interaction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                        <tr>
+                            <td>{{ app.created_at|date:"d M, Y" }}</td>
+                            <td>
+                                <strong>Prof. {{ app.teacher.user.first_name }} {{ app.teacher.user.last_name }}</strong>
+                                <br><span style="font-size: 0.8rem; color:#64748b;">{{ app.teacher.designation }} ({{ app.teacher.dept.code }})</span>
+                            </td>
+                            <td>
+                                {% if app.project %}
+                                    <strong>{{ app.project.title }}</strong>
+                                {% else %}
+                                    <em style="color:#64748b;">Generic Supervision Request</em>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <p style="font-size:0.85rem; max-width: 300px; color:#475569;" title="{{ app.message }}">{{ app.message }}</p>
+                            </td>
+                            <td>
+                                {% if app.status == 'Pending' %}
+                                    <span class="badge badge-pending">Pending</span>
+                                {% elif app.status == 'Accepted' %}
+                                    <span class="badge badge-accepted">Accepted</span>
+                                {% else %}
+                                    <span class="badge badge-rejected">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'chat_room' app.teacher.user.id %}" class="btn btn-secondary btn-sm" style="font-size:0.8rem;">Chat</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: #64748b; font-size: 1rem; text-align: center; padding: 3rem 0;">
+            You have not submitted any supervision applications yet. <a href="{% url 'browse_teachers' %}">Browse our faculty supervisors</a> to send your first request!
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

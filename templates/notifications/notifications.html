@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-user-info">
+        <h1>Notifications Center</h1>
+        <p>Keep track of status updates on your applications, profile views, approvals, and system-wide announcements.</p>
+    </div>
+    {% if notifications %}
+        <form action="{% url 'clear_all_notifications' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">Mark All as Read</button>
+        </form>
+    {% endif %}
+</div>
+
+<!-- List of Notifications -->
+<div class="card">
+    <h3 class="card-title">Recent Alerts</h3>
+    {% if notifications %}
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+            {% for notif in notifications %}
+                <li style="background-color: {% if notif.is_read %}#ffffff{% else %}#eff6ff{% endif %}; 
+                           border: 1px solid {% if notif.is_read %}#e2e8f0{% else %}#bfdbfe{% endif %}; 
+                           border-radius: 8px; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p style="font-size: 0.95rem; color: #1e293b; font-weight: {% if notif.is_read %}400{% else %}600{% endif %};">
+                            {{ notif.message }}
+                        </p>
+                        <span style="font-size: 0.75rem; color: #64748b; display: block; margin-top: 0.25rem;">
+                            {{ notif.created_at|date:"d M, Y \a\t H:i a" }}
+                        </span>
+                    </div>
+                    {% if not notif.is_read %}
+                        <form action="{% url 'mark_notification_read' notif.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-sm" style="font-size:0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px;">Mark Read</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: #64748b; font-size: 1rem; text-align: center; padding: 3.5rem 0;">
+            🔔 No notifications at this time. All caught up!
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

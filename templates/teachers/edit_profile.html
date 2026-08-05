@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Faculty Profile - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-layout">
+    <!-- Profile Card (Sidebar) -->
+    <div class="profile-sidebar">
+        <div class="profile-avatar" style="background-color: #fef3c7; color: #d97706; border-color: #d97706;">🔬</div>
+        <h2 class="profile-name">Prof. {{ user.first_name }} {{ user.last_name }}</h2>
+        <div class="profile-role" style="color: #d97706;">{{ teacher.designation }}</div>
+        <p class="profile-dept">Department of {{ teacher.dept.name }}</p>
+        
+        <div style="text-align: left; background-color: #f8fafc; padding: 1rem; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.9rem; margin-top: 1rem;">
+            <p class="mb-2"><strong>Office Room:</strong> {{ teacher.room_no }}</p>
+            <p class="mb-2"><strong>Account Status:</strong> 
+                {% if teacher.is_approved %}
+                    <span class="badge badge-accepted">Approved</span>
+                {% else %}
+                    <span class="badge badge-pending">Pending Approval</span>
+                {% endif %}
+            </p>
+            <p><strong>Total Interests:</strong> <span style="font-weight: 700; color: #d97706;">{{ teacher.interests.count }}</span></p>
+        </div>
+    </div>
+
+    <!-- Edit Form (Main Content) -->
+    <div class="profile-details-card">
+        <h3 class="profile-section-title">✏️ Edit My Academic Profile</h3>
+        
+        <form method="post" action="{% url 'my_profile' %}">
+            {% csrf_token %}
+            
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" name="first_name" id="first_name" class="form-control" required value="{{ user.first_name }}">
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" name="last_name" id="last_name" class="form-control" required value="{{ user.last_name }}">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="designation">Designation</label>
+                    <select name="designation" id="designation" class="form-control" required>
+                        <option value="Professor" {% if teacher.designation == 'Professor' %}selected{% endif %}>Professor</option>
+                        <option value="Associate Professor" {% if teacher.designation == 'Associate Professor' %}selected{% endif %}>Associate Professor</option>
+                        <option value="Assistant Professor" {% if teacher.designation == 'Assistant Professor' %}selected{% endif %}>Assistant Professor</option>
+                        <option value="Lecturer" {% if teacher.designation == 'Lecturer' %}selected{% endif %}>Lecturer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="room_no">Office Room Number</label>
+                    <input type="text" name="room_no" id="room_no" class="form-control" required value="{{ teacher.room_no }}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Biography / Research Background</label>
+                <textarea name="bio" id="bio" rows="4" class="form-control" placeholder="Describe your publications, teaching tracks, and the focus fields of your research group..." style="resize:vertical;">{{ teacher.bio|default:'' }}</textarea>
+            </div>
+
+            <!-- Research fields / Interests Multiselect -->
+            <div class="form-group">
+                <label>Select My Active Research Fields</label>
+                <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 1rem; max-height: 200px; overflow-y: auto;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem;">
+                        {% for field in all_fields %}
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="interests" id="field_{{ field.id }}" value="{{ field.id }}"
+                                    {% if field in teacher.interests.all %}checked{% endif %}>
+                                <label for="field_{{ field.id }}" style="display: inline; font-size: 0.85rem; font-weight: 400; cursor: pointer; margin-bottom: 0;">
+                                    {{ field.name }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <small style="color: #64748b; font-size: 0.8rem;">These categories help matching students locate your supervision listing.</small>
+            </div>
+
+            <div class="flex-row mt-4">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+                <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

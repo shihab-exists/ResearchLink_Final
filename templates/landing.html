@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="landing-hero">
+    <h1 class="hero-title">Connect with your Next <span class="hero-accent">Thesis Supervisor</span></h1>
+    <p class="hero-text">
+        ResearchLink bridges the gap between ambitious Computer Science students and faculty members. 
+        Browse academic profiles, explore ongoing research projects, and pitch your collaboration proposals seamlessly.
+    </p>
+    <div class="hero-buttons">
+        <a href="{% url 'login' %}" class="btn btn-secondary" style="border-radius: 30px; padding: 0.75rem 2rem;">Log In</a>
+        <a href="{% url 'register' %}" class="btn btn-primary" style="border-radius: 30px; padding: 0.75rem 2rem;">Get Started</a>
+    </div>
+</div>
+
+<div class="grid-3 mb-4">
+    <div class="card text-center">
+        <div class="profile-avatar" style="width: 70px; height: 70px; font-size: 2rem; margin-bottom: 1rem;">🎓</div>
+        <h3 class="card-title">For Students</h3>
+        <p style="font-size: 0.9rem; color: #64748b;">
+            Create your academic profile, list your skills, upload your CV, and directly apply to supervised thesis positions.
+        </p>
+    </div>
+    
+    <div class="card text-center">
+        <div class="profile-avatar" style="width: 70px; height: 70px; font-size: 2rem; margin-bottom: 1rem; background-color: #fef3c7; color: #d97706; border-color: #d97706;">🔬</div>
+        <h3 class="card-title">For Faculty</h3>
+        <p style="font-size: 0.9rem; color: #64748b;">
+            Post open research opportunities, specify required student criteria, and manage all your applications and thesis students in one place.
+        </p>
+    </div>
+    
+    <div class="card text-center">
+        <div class="profile-avatar" style="width: 70px; height: 70px; font-size: 2rem; margin-bottom: 1rem; background-color: #dcfce7; color: #15803d; border-color: #15803d;">🛡️</div>
+        <h3 class="card-title">For Administrators</h3>
+        <p style="font-size: 0.9rem; color: #64748b;">
+            Review and approve supervisor profiles, manage academic departments and research categories, and analyze platform statistics.
+        </p>
+    </div>
+</div>
+{% endblock %}

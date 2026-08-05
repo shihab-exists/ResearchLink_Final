@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Direct Messages - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-user-info">
+        <h1>Direct Message Log</h1>
+        <p>Communicate directly with students or faculty regarding thesis supervision and research opportunities.</p>
+    </div>
+</div>
+
+<!-- Send Message Section -->
+<div class="card">
+    <h3 class="card-title">✉️ Send a New Message</h3>
+    <form method="post" action="{% url 'chat_list' %}" class="mt-3">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="receiver">Select Recipient</label>
+            <select name="receiver" id="receiver" class="form-control" required style="max-width: 400px;">
+                <option value="">-- Choose Recipient --</option>
+                {% for rec in recipients %}
+                    <option value="{{ rec.id }}" 
+                        {% if preselected_receiver and preselected_receiver.id == rec.id %}selected{% endif %}>
+                        {{ rec.first_name }} {{ rec.last_name }} (@{{ rec.username }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="message_text">Message Content</label>
+            <textarea name="message_text" id="message_text" rows="3" class="form-control" required placeholder="Type your message here..."></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+</div>
+
+<!-- Messages History Log -->
+<div class="card">
+    <h3 class="card-title">Message History</h3>
+    {% if msg_history %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date &amp; Time</th>
+                        <th>Sender</th>
+                        <th>Recipient</th>
+                        <th>Message text</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in msg_history %}
+                        <tr>
+                            <td style="font-size:0.85rem; color:#64748b; white-space:nowrap;">{{ msg.sent_at|date:"d M, Y | h:i A" }}</td>
+                            <td>
+                                {% if msg.sender == user %}
+                                    <span style="color:#2563eb; font-weight:600;">You</span>
+                                {% else %}
+                                    {{ msg.sender.first_name }} {{ msg.sender.last_name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if msg.receiver == user %}
+                                    <span style="color:#2563eb; font-weight:600;">You</span>
+                                {% else %}
+                                    {{ msg.receiver.first_name }} {{ msg.receiver.last_name }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <p style="font-size:0.95rem; color:#334155;">{{ msg.message_text }}</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: #64748b; font-size: 0.95rem; text-align: center; padding: 2rem 0;">
+            No messages sent or received yet. Use the form above to send your first message!
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,199 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="100%" height="100%" style="background-color: #f8fafc; font-family: 'Segoe UI', sans-serif;">
+  <!-- Title -->
+  <text x="600" y="40" font-size="24" font-weight="bold" fill="#1e293b" text-anchor="middle">ResearchLink Database - ER Diagram (3NF Normalized)</text>
+  <text x="600" y="65" font-size="14" fill="#64748b" text-anchor="middle">DBMS Lab Mini Project Schema Layout</text>
+
+  <!-- Entities/Tables -->
+
+  <!-- auth_user -->
+  <g transform="translate(480, 80)">
+    <rect width="240" height="110" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="2" />
+    <rect width="240" height="30" rx="6" fill="#2563eb" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">auth_user (Django Core)</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="66" font-size="11" fill="#334155">username: VARCHAR(150)</text>
+    <text x="15" y="84" font-size="11" fill="#334155">email: VARCHAR(254)</text>
+    <text x="15" y="102" font-size="11" fill="#334155">first_name / last_name</text>
+  </g>
+
+  <!-- students -->
+  <g transform="translate(80, 240)">
+    <rect width="240" height="130" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+    <rect width="240" height="30" rx="6" fill="#2563eb" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">students (Profile)</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK,FK | id: INT (auth_user)</text>
+    <text x="15" y="66" font-size="11" fill="#475569">FK | dept_id: INT (departments)</text>
+    <text x="15" y="84" font-size="11" fill="#334155">roll_no: VARCHAR(20) [UNIQUE]</text>
+    <text x="15" y="102" font-size="11" fill="#334155">cgpa: DECIMAL(3,2)</text>
+    <text x="15" y="120" font-size="11" fill="#64748b">bio: TEXT | cv_url: VARCHAR</text>
+  </g>
+
+  <!-- teachers -->
+  <g transform="translate(880, 240)">
+    <rect width="240" height="130" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+    <rect width="240" height="30" rx="6" fill="#2563eb" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">teachers (Profile)</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK,FK | id: INT (auth_user)</text>
+    <text x="15" y="66" font-size="11" fill="#475569">FK | dept_id: INT (departments)</text>
+    <text x="15" y="84" font-size="11" fill="#334155">designation: VARCHAR(100)</text>
+    <text x="15" y="102" font-size="11" fill="#334155">room_no: VARCHAR(50)</text>
+    <text x="15" y="120" font-size="11" fill="#334155">is_approved: BOOLEAN</text>
+  </g>
+
+  <!-- departments -->
+  <g transform="translate(480, 240)">
+    <rect width="240" height="90" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+    <rect width="240" height="30" rx="6" fill="#475569" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">departments</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="66" font-size="11" fill="#334155">name: VARCHAR(100) [UNIQUE]</text>
+    <text x="15" y="84" font-size="11" fill="#334155">code: VARCHAR(10) [UNIQUE]</text>
+  </g>
+
+  <!-- skills -->
+  <g transform="translate(80, 60)">
+    <rect width="200" height="70" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+    <rect width="200" height="25" rx="6" fill="#475569" />
+    <text x="100" y="17" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">skills</text>
+    <text x="15" y="42" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="58" font-size="11" fill="#334155">name: VARCHAR(100)</text>
+  </g>
+
+  <!-- student_skills (Junction) -->
+  <g transform="translate(80, 160)">
+    <rect width="200" height="60" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3" />
+    <text x="100" y="20" font-size="11" font-weight="bold" fill="#475569" text-anchor="middle">student_skills (M:M)</text>
+    <text x="15" y="38" font-size="10" fill="#1e293b">FK | student_id (students)</text>
+    <text x="15" y="52" font-size="10" fill="#1e293b">FK | skill_id (skills)</text>
+  </g>
+
+  <!-- research_fields -->
+  <g transform="translate(920, 60)">
+    <rect width="200" height="70" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+    <rect width="200" height="25" rx="6" fill="#475569" />
+    <text x="100" y="17" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">research_fields</text>
+    <text x="15" y="42" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="58" font-size="11" fill="#334155">name: VARCHAR(100)</text>
+  </g>
+
+  <!-- teacher_interests (Junction) -->
+  <g transform="translate(920, 160)">
+    <rect width="200" height="60" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3" />
+    <text x="100" y="20" font-size="11" font-weight="bold" fill="#475569" text-anchor="middle">teacher_interests (M:M)</text>
+    <text x="15" y="38" font-size="10" fill="#1e293b">FK | teacher_id (teachers)</text>
+    <text x="15" y="52" font-size="10" fill="#1e293b">FK | researchfield_id (fields)</text>
+  </g>
+
+  <!-- projects -->
+  <g transform="translate(880, 420)">
+    <rect width="240" height="110" rx="6" fill="#ffffff" stroke="#2563eb" stroke-width="2" />
+    <rect width="240" height="30" rx="6" fill="#2563eb" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">projects (Opportunities)</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="66" font-size="11" fill="#475569">FK | teacher_id: INT (teachers)</text>
+    <text x="15" y="84" font-size="11" fill="#334155">title: VARCHAR(255)</text>
+    <text x="15" y="102" font-size="11" fill="#64748b">description: TEXT | status: VARCHAR</text>
+  </g>
+
+  <!-- applications -->
+  <g transform="translate(480, 420)">
+    <rect width="240" height="150" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="2" />
+    <rect width="240" height="30" rx="6" fill="#2563eb" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">applications</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="66" font-size="11" fill="#475569">FK | project_id: INT (projects)</text>
+    <text x="15" y="84" font-size="11" fill="#475569">FK | student_id: INT (students)</text>
+    <text x="15" y="102" font-size="11" fill="#475569">FK | teacher_id: INT (teachers)</text>
+    <text x="15" y="120" font-size="11" fill="#334155">message: TEXT | status: VARCHAR</text>
+    <text x="15" y="138" font-size="11" fill="#64748b">timestamps (created/updated)</text>
+  </g>
+
+  <!-- messages -->
+  <g transform="translate(480, 640)">
+    <rect width="240" height="110" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+    <rect width="240" height="30" rx="6" fill="#475569" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">messages</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="66" font-size="11" fill="#475569">FK | sender_id: INT (auth_user)</text>
+    <text x="15" y="84" font-size="11" fill="#475569">FK | receiver_id: INT (auth_user)</text>
+    <text x="15" y="102" font-size="11" fill="#334155">message_text: TEXT | is_read</text>
+  </g>
+
+  <!-- notifications -->
+  <g transform="translate(80, 420)">
+    <rect width="240" height="110" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+    <rect width="240" height="30" rx="6" fill="#475569" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">notifications</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="66" font-size="11" fill="#475569">FK | user_id: INT (auth_user)</text>
+    <text x="15" y="84" font-size="11" fill="#334155">message: TEXT</text>
+    <text x="15" y="102" font-size="11" fill="#334155">is_read: BOOLEAN | created_at</text>
+  </g>
+
+  <!-- activity_logs -->
+  <g transform="translate(80, 600)">
+    <rect width="240" height="90" rx="6" fill="#ffffff" stroke="#475569" stroke-width="1.5" />
+    <rect width="240" height="30" rx="6" fill="#475569" />
+    <text x="120" y="20" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">activity_logs</text>
+    <text x="15" y="48" font-size="11" font-weight="bold" fill="#1e293b">PK | id: INT</text>
+    <text x="15" y="66" font-size="11" fill="#475569">FK | user_id: INT (auth_user)</text>
+    <text x="15" y="84" font-size="11" fill="#334155">action: VARCHAR(255)</text>
+  </g>
+
+
+  <!-- Relationship Lines & Connections -->
+
+  <!-- auth_user -> students (1:1 PK/FK) -->
+  <path d="M 480, 135 L 200, 135 L 200, 240" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2,2" />
+  <circle cx="200" cy="240" r="3" fill="#2563eb" />
+
+  <!-- auth_user -> teachers (1:1 PK/FK) -->
+  <path d="M 720, 135 L 1000, 135 L 1000, 240" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2,2" />
+  <circle cx="1000" cy="240" r="3" fill="#2563eb" />
+
+  <!-- departments -> students (1:N) -->
+  <path d="M 480, 285 L 320, 285" fill="none" stroke="#475569" stroke-width="1.5" />
+  <circle cx="320" cy="285" r="3" fill="#475569" />
+
+  <!-- departments -> teachers (1:N) -->
+  <path d="M 720, 285 L 880, 285" fill="none" stroke="#475569" stroke-width="1.5" />
+  <circle cx="880" cy="285" r="3" fill="#475569" />
+
+  <!-- skills -> student_skills -> students (M:M) -->
+  <path d="M 180, 130 L 180, 160" fill="none" stroke="#475569" stroke-width="1.5" />
+  <path d="M 180, 220 L 180, 240" fill="none" stroke="#475569" stroke-width="1.5" />
+
+  <!-- fields -> teacher_interests -> teachers (M:M) -->
+  <path d="M 1020, 130 L 1020, 160" fill="none" stroke="#475569" stroke-width="1.5" />
+  <path d="M 1020, 220 L 1020, 240" fill="none" stroke="#475569" stroke-width="1.5" />
+
+  <!-- teachers -> projects (1:N) -->
+  <path d="M 1000, 370 L 1000, 420" fill="none" stroke="#2563eb" stroke-width="1.5" />
+  <circle cx="1000" cy="420" r="3" fill="#2563eb" />
+
+  <!-- students -> applications (1:N) -->
+  <path d="M 200, 370 L 200, 450 L 480, 450" fill="none" stroke="#2563eb" stroke-width="1.5" />
+  <circle cx="480" cy="450" r="3" fill="#2563eb" />
+
+  <!-- teachers -> applications (1:N) -->
+  <path d="M 880, 350 L 780, 350 L 780, 480 L 720, 480" fill="none" stroke="#2563eb" stroke-width="1.5" />
+  <circle cx="720" cy="480" r="3" fill="#2563eb" />
+
+  <!-- projects -> applications (1:N) -->
+  <path d="M 880, 495 L 720, 495" fill="none" stroke="#2563eb" stroke-width="1.5" />
+  <circle cx="720" cy="495" r="3" fill="#2563eb" />
+
+  <!-- auth_user -> notifications (1:N) -->
+  <path d="M 480, 100 L 40, 100 L 40, 450 L 80, 450" fill="none" stroke="#475569" stroke-width="1.5" />
+  <circle cx="80" cy="450" r="3" fill="#475569" />
+
+  <!-- auth_user -> activity_logs (1:N) -->
+  <path d="M 480, 110 L 25, 110 L 25, 630 L 80, 630" fill="none" stroke="#475569" stroke-width="1.5" />
+  <circle cx="80" cy="630" r="3" fill="#475569" />
+
+  <!-- auth_user -> messages (sender/receiver 1:N) -->
+  <path d="M 600, 190 L 600, 420" fill="none" stroke="#475569" stroke-width="1.5" />
+  <path d="M 600, 570 L 600, 640" fill="none" stroke="#475569" stroke-width="1.5" />
+  <circle cx="600" cy="640" r="3" fill="#475569" />
+
+</svg>

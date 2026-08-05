@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Faculty Dashboard - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <div class="dashboard-user-info">
+        <h1>Welcome, {{ user.first_name }} {{ user.last_name }}</h1>
+        <p>{{ teacher.designation }} | Department of {{ teacher.dept.name }} ({{ teacher.dept.code }}) | Office: {{ teacher.room_no }}</p>
+    </div>
+    <div>
+        <a href="{% url 'my_profile' %}" class="btn btn-secondary">Edit Profile</a>
+        <a href="{% url 'manage_projects' %}" class="btn btn-primary">Post Opportunity</a>
+    </div>
+</div>
+
+<!-- Approval Status Banner -->
+{% if not teacher.is_approved %}
+    <div class="alert alert-warning mb-4">
+        <strong>⚠️ Account Pending Approval:</strong> Your faculty profile has not been approved by the Admin yet. 
+        Once approved, students will be able to search for your profile and submit research proposals.
+    </div>
+{% endif %}
+
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-value">{{ stats.total_projects }}</span>
+        <span class="stat-label">Opportunities Posted</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value" style="color: #15803d;">{{ stats.accepted_count }}</span>
+        <span class="stat-label">Supervised Students</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value" style="color: #d97706;">{{ stats.pending_count }}</span>
+        <span class="stat-label">Pending Applications</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-value" style="color: #64748b;">
+            {% if teacher.is_approved %}
+                <span style="color: #15803d;">APPROVED</span>
+            {% else %}
+                <span style="color: #d97706;">PENDING</span>
+            {% endif %}
+        </span>
+        <span class="stat-label">Profile Status</span>
+    </div>
+</div>
+
+<!-- Pending Supervision Applications Section -->
+<div class="card">
+    <h3 class="card-title">Pending Collaboration Requests</h3>
+    <p class="mb-3" style="font-size: 0.9rem; color: #64748b;">
+        Review student proposals and select "Accept" to start supervision or "Reject" to decline. Students are notified instantly!
+    </p>
+
+    {% if pending_applications %}
+        <div class="request-grid">
+            {% for app in pending_applications %}
+                <div class="request-card">
+                    <div class="request-meta">
+                        <div>
+                            <span class="request-sender">{{ app.student.user.first_name }} {{ app.student.user.last_name }}</span>
+                            <span style="color: #64748b; font-size: 0.9rem; margin-left: 0.5rem;">
+                                (Roll: {{ app.student.roll_no }} | CGPA: <strong style="color: #2563eb;">{{ app.student.cgpa }}</strong>)
+                            </span>
+                        </div>
+                        <span class="badge badge-pending">Pending Review</span>
+                    </div>
+                    
+                    <p style="font-size: 0.85rem; color: #475569; margin-bottom: 0.75rem;">
+                        <strong>Associated Opportunity:</strong> 
+                        {% if app.project %}
+                            <span class="badge badge-open" style="font-size: 0.75rem;">{{ app.project.title }}</span>
+                        {% else %}
+                            <span class="badge badge-closed" style="font-size: 0.75rem; background-color: #cbd5e1; color: #334155;">Generic Thesis supervision</span>
+                        {% endif %}
+                    </p>
+                    
+                    <div class="request-body">
+                        <strong>Student's Message:</strong>
+                        <p style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem; border-radius: 6px; margin-top: 0.25rem;">
+                            "{{ app.message }}"
+                        </p>
+                    </div>
+
+                    <!-- Display student's skills -->
+                    <div class="mb-3">
+                        <strong style="font-size:0.85rem; color: #475569;">Student Skills:</strong>
+                        <div class="tag-container" style="margin-top: 0.25rem;">
+                            {% for skill in app.student.skills.all %}
+                                <span class="tag" style="padding: 0.15rem 0.5rem; font-size: 0.75rem;">{{ skill.name }}</span>
+                            {% empty %}
+                                <span style="font-size: 0.8rem; color:#64748b;">No skills uploaded</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="request-actions">
+                        <form action="{% url 'respond_application' app.id 'Accepted' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-sm" {% if not teacher.is_approved %}disabled style="opacity:0.5; cursor:not-allowed;"{% endif %}>Accept Student</button>
+                        </form>
+                        
+                        <form action="{% url 'respond_application' app.id 'Rejected' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-sm">Decline Proposal</button>
+                        </form>
+                        
+                        <a href="{% url 'chat_room' app.student.user.id %}" class="btn btn-secondary btn-sm" style="margin-left: auto;">Send Message</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #64748b; font-size: 0.95rem; text-align: center; padding: 2.5rem 0;">
+            No pending collaboration requests at this moment. You will see notifications when students submit proposals!
+        </p>
+    {% endif %}
+</div>
+
+<!-- Approved/Supervised Student List -->
+<div class="card">
+    <h3 class="card-title" style="color: #15803d;">Currently Supervised Students</h3>
+    {% if supervised_students %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Roll Number</th>
+                        <th>CGPA</th>
+                        <th>Research Subject</th>
+                        <th>Discussion Hub</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in supervised_students %}
+                        <tr>
+                            <td><strong>{{ app.student.user.first_name }} {{ app.student.user.last_name }}</strong></td>
+                            <td>{{ app.student.roll_no }}</td>
+                            <td><strong style="color: #2563eb;">{{ app.student.cgpa }}</strong></td>
+                            <td>
+                                {% if app.project %}
+                                    {{ app.project.title }}
+                                {% else %}
+                                    <em style="color:#64748b;">General thesis topic</em>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'chat_room' app.student.user.id %}" class="btn btn-primary btn-sm">Chat with Student</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: #64748b; font-size: 0.95rem; text-align: center; padding: 2rem 0;">
+            You are not currently supervising any students. Approved requests will be listed here.
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

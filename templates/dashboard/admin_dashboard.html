@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - ResearchLink{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="border-left: 5px solid #2563eb;">
+    <div class="dashboard-user-info">
+        <h1>Administrative Central Command</h1>
+        <p>Logged in as Administrator: <strong>{{ user.username }}</strong></p>
+    </div>
+</div>
+
+<!-- Admin Statistics Overview (6 Metrics) -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+    <div class="stat-card" style="border-top: 3px solid #3b82f6;">
+        <span class="stat-value">{{ stats.total_students }}</span>
+        <span class="stat-label">Total Students</span>
+    </div>
+    <div class="stat-card" style="border-top: 3px solid #10b981;">
+        <span class="stat-value" style="color: #10b981;">{{ stats.total_teachers }}</span>
+        <span class="stat-label">Total Teachers</span>
+    </div>
+    <div class="stat-card" style="border-top: 3px solid #f59e0b;">
+        <span class="stat-value" style="color: #f59e0b;">{{ stats.pending_teachers }}</span>
+        <span class="stat-label">Pending Approval</span>
+    </div>
+    <div class="stat-card" style="border-top: 3px solid #8b5cf6;">
+        <span class="stat-value" style="color: #8b5cf6;">{{ stats.total_projects }}</span>
+        <span class="stat-label">Total Projects</span>
+    </div>
+    <div class="stat-card" style="border-top: 3px solid #ec4899;">
+        <span class="stat-value" style="color: #ec4899;">{{ stats.total_applications }}</span>
+        <span class="stat-label">Total Applications</span>
+    </div>
+</div>
+
+<!-- Approvals Grid (Pending Supervisors) -->
+<div class="card">
+    <h3 class="card-title" style="color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🛡️</span> Approve Supervisor Accounts
+    </h3>
+    <p class="mb-3" style="font-size: 0.9rem; color: #64748b;">
+        These faculty members have registered and are waiting for academic credential verification. Once approved, they can post projects and accept student applications.
+    </p>
+
+    {% if pending_list %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Faculty Name</th>
+                        <th>Email Address</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Office Room</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in pending_list %}
+                        <tr>
+                            <td><strong>{{ teacher.user.first_name }} {{ teacher.user.last_name }}</strong></td>
+                            <td>{{ teacher.user.email }}</td>
+                            <td>{{ teacher.dept.code }}</td>
+                            <td>{{ teacher.designation }}</td>
+                            <td>{{ teacher.room_no }}</td>
+                            <td>
+                                <form action="{% url 'approve_teacher_profile' teacher.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-sm" style="border-radius: 4px;">Approve Supervisor</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: #15803d; background-color: #dcfce7; padding: 1.5rem; border-radius: 6px; text-align: center; font-size: 0.95rem; font-weight: 500;">
+            ✅ Excellent! All registered supervisor accounts have been fully reviewed and approved.
+        </p>
+    {% endif %}
+</div>
+
+<!-- Grid for analytical views/stats and recent registrations -->
+<div class="grid-2">
+    <!-- Active Teacher Workload (Database View) -->
+    <div class="card">
+        <h3 class="card-title">Supervisor Workload View (DB View)</h3>
+        <p class="mb-2" style="font-size: 0.85rem; color: #64748b;">Real-time workload calculated from database view `view_teacher_workload`.</p>
+        <div class="table-wrapper" style="max-height: 350px; overflow-y: auto;">
+            <table class="data-table" style="font-size: 0.85rem;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Dept</th>
+                        <th>Accepted Supervisions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in workload_data %}
+                        <tr>
+                            <td><strong>{{ row.first_name }} {{ row.last_name }}</strong></td>
+                            <td>{{ row.dept_name }}</td>
+                            <td class="text-center"><span class="badge badge-accepted" style="font-size:0.75rem;">{{ row.accepted_supervisions }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Registrations (Instead of activity logs) -->
+    <div class="card">
+        <h3 class="card-title">Recent Registrations</h3>
+        <p class="mb-2" style="font-size: 0.85rem; color: #64748b;">The latest 5 registered users across the ResearchLink platform.</p>
+        <div class="table-wrapper" style="max-height: 350px; overflow-y: auto;">
+            <table class="data-table" style="font-size: 0.85rem;">
+                <thead>
+                    <tr>
+                        <th>Joined Date</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in recent_registrations %}
+                        <tr>
+                            <td>{{ reg.date_joined|date:"d M, Y" }}</td>
+                            <td><strong>{{ reg.username }}</strong></td>
+                            <td>{{ reg.first_name }} {{ reg.last_name }}</td>
+                            <td>{{ reg.email }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
