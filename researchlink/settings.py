@@ -96,6 +96,7 @@ DATABASES = {
         'PORT': DB_PORT,
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'ssl': {},  # Enable secure SSL connection negotiation for Aiven cloud database
         }
     }
 }
