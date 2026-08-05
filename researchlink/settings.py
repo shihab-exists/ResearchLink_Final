@@ -14,13 +14,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-# SECRET_KEY config
-SECRET_KEY = os.environ['SECRET_KEY']
+# Fail-fast production check for SECRET_KEY (raises KeyError if missing)
+SECRET_KEY = os.environ['SECRET_KEY'].strip()
 
-# DEBUG mode config
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv('DEBUG', 'False').strip() == 'True'
 
-# ALLOWED_HOSTS config
+# Strict Allowed Hosts loading (No generic fallback)
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
@@ -77,14 +77,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'researchlink.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.x/ref/settings/#databases
+# Database Configuration
+# Utilizing stripped environment variables to guard against trailing copy-paste newlines/whitespaces
 
-DB_NAME = os.getenv('DB_NAME', 'researchlink')
-DB_USER = os.getenv('DB_USER', 'researchlink_user')
-DB_PASS = os.getenv('DB_PASS', 'researchlink_pass')
-DB_HOST = os.getenv('DB_HOST', '127.0.0.1')
-DB_PORT = os.getenv('DB_PORT', '3306')
+DB_NAME = os.getenv('DB_NAME', 'researchlink').strip()
+DB_USER = os.getenv('DB_USER', 'researchlink_user').strip()
+DB_PASS = os.getenv('DB_PASS', 'researchlink_pass').strip()
+DB_HOST = os.getenv('DB_HOST', '127.0.0.1').strip()
+DB_PORT = os.getenv('DB_PORT', '3306').strip()
 
 DATABASES = {
     'default': {
@@ -134,7 +134,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.x/howto/static-files/
+# Utilizing WhiteNoise configuration for optimal production caching
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
@@ -142,11 +142,11 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Media files config
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Storages (Django 5 syntax)
+# Storages configurations (Modern Django 5 standard, no conflicting settings)
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
@@ -165,16 +165,17 @@ if csrf_trusted_origins_env:
         if origin.strip()
     ]
 else:
-    CSRF_TRUSTED_ORIGINS = ["https://researchlink.onrender.com", "http://127.0.0.1:8000"]
+    CSRF_TRUSTED_ORIGINS = ["https://researchlink-final.onrender.com", "http://127.0.0.1:8000"]
 
-# SSL settings for production
+# Strict Production-grade redirects & SSL controls
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    # Informs Django to trust Render's upstream HTTPS headers (prevents loop)
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Authentication redirects
+# Authentication Redirects
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
