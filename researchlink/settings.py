@@ -86,12 +86,6 @@ DB_PASS = os.getenv('DB_PASS', 'researchlink_pass').strip()
 DB_HOST = os.getenv('DB_HOST', '127.0.0.1').strip()
 DB_PORT = os.getenv('DB_PORT', '3306').strip()
 
-# Configure secure SSL settings if Aiven CA certificate was downloaded by build.sh
-ca_cert_path = os.path.join(BASE_DIR, 'ca.pem')
-ssl_options = {}
-if os.path.exists(ca_cert_path):
-    ssl_options['ca'] = ca_cert_path
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -102,7 +96,7 @@ DATABASES = {
         'PORT': DB_PORT,
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'ssl': ssl_options,  # Enable secure SSL connections dynamically
+            'ssl': {},  # Enable standard SSL negotiation using system root CAs
         }
     }
 }
