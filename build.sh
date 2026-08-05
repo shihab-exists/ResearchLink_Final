@@ -3,4 +3,5 @@ set -o errexit
 pip install -r requirements.txt
 curl -sS https://api.aiven.io/v1/ca.pem -o researchlink/ca.pem
 python manage.py migrate
+python populate_db.py
 python manage.py collectstatic --no-input
